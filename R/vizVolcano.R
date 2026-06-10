@@ -151,9 +151,19 @@ vizVolcano <- function(
     x_hi <- max(df$log2FoldChange, na.rm = TRUE)
   }
   if (!is.null(ylim)) {
+    y_lo <- ylim[1]
     y_hi <- ylim[2]
   } else {
+    y_lo <- 0
     y_hi <- max(df$neg_log10_padj, na.rm = TRUE)
+  }
+
+  # ── Clamp data to axis limits so out-of-range points appear at edges ──────
+  if (!is.null(xlim)) {
+    df$log2FoldChange <- pmax(pmin(df$log2FoldChange, x_hi), x_lo)
+  }
+  if (!is.null(ylim)) {
+    df$neg_log10_padj <- pmax(pmin(df$neg_log10_padj, y_hi), y_lo)
   }
 
   # Zone midpoints (x) for annotation labels
@@ -162,8 +172,8 @@ vizVolcano <- function(
   x_mid_up_low    <- (0 + lfc_threshold) / 2
   x_mid_up_high   <- (lfc_threshold + x_hi) / 2
 
-  # Y position for count labels: 3/4 of the plot height
-  y_label <- y_hi * 0.75
+  # Y position for count labels: 1/5 of the y-axis height
+  y_label <- y_lo + (y_hi - y_lo) * 0.20
 
   # Build annotation data.frame
   count_labels <- data.frame(
@@ -239,12 +249,9 @@ vizVolcano <- function(
       legend.position = "none"
     )
 
-  # ── Apply axis limits if provided ─────────────────────────────────────────
-  if (!is.null(xlim)) {
-    p <- p + ggplot2::xlim(xlim)
-  }
-  if (!is.null(ylim)) {
-    p <- p + ggplot2::ylim(ylim)
+  # ── Apply axis limits via coord_cartesian (no data removal) ────────────────
+  if (!is.null(xlim) || !is.null(ylim)) {
+    p <- p + ggplot2::coord_cartesian(xlim = xlim, ylim = ylim)
   }
 
   # ── Optional gene labels ─────────────────────────────────────────────────
