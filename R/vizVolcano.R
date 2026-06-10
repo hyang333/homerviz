@@ -117,6 +117,13 @@ vizVolcano <- function(
   # Compute -log10(padj)
   df$neg_log10_padj <- -log10(df$padj)
 
+  # Cap Inf values (from padj == 0) to the largest finite value
+  finite_vals <- df$neg_log10_padj[is.finite(df$neg_log10_padj)]
+  if (length(finite_vals) > 0 && any(is.infinite(df$neg_log10_padj))) {
+    max_finite <- max(finite_vals, na.rm = TRUE)
+    df$neg_log10_padj[is.infinite(df$neg_log10_padj)] <- max_finite * 1.05
+  }
+
   # ── Classify genes into 3 color categories ────────────────────────────────
   df$category <- ifelse(
     df$padj >= padj_cutoff,
