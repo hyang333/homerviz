@@ -251,10 +251,8 @@ vizVolcano <- function(
       legend.position = "none"
     )
 
-  # ── Apply axis limits via coord_cartesian (no data removal) ────────────────
-  if (!is.null(xlim) || !is.null(ylim)) {
-    p <- p + ggplot2::coord_cartesian(xlim = xlim, ylim = ylim)
-  }
+  # ── Apply coord_cartesian with clip off so labels are never clipped ────────
+  p <- p + ggplot2::coord_cartesian(xlim = xlim, ylim = ylim, clip = "off")
 
   # ── Optional gene labels ─────────────────────────────────────────────────
   if (!is.null(label_genes) && gene_col %in% colnames(df)) {
