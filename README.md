@@ -1,4 +1,4 @@
-# omicviz
+# PubOmix
 
 Visualization of HOMER Known Motif Discovery Results.
 
